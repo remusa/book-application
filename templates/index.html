@@ -1,0 +1,20 @@
+{% extends "layout.html" %} {% block heading %} Login | Register {% endblock %} {% block body %}
+<main class="container-fluid">
+
+    <form>
+        <div class="form-group">
+            <label for="inputEmail">Email address</label>
+            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="user@domain.com" />
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email!</small>
+        </div>
+
+        <div class="form-group">
+            <label for="inputPassword1">Password</label>
+            <input type="password" class="form-control" id="inputPassword" placeholder="*****" />
+        </div>
+
+        <button type="submit" name="" class="btn btn-primary">Submit</button>
+    </form>
+
+</main>
+{% endblock %}
