@@ -13,5 +13,37 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+# Check for environment variable
+if not os.getenv("DATABASE_URL"):
+    raise RuntimeError("DATABASE_URL is not set")
+
+# Set up database
+engine = create_engine(os.getenv("DATABASE_URL"))  # DATABASE_URL
 db = scoped_session(sessionmaker(bind=engine))
+
+# for target_list in expression_list:
+# isbn = "1234567890"
+# title = "Lorem Ipsum"
+# author = "René"
+# year = "2018"
+
+i = 1
+
+with open('books.csv') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+
+    for row in reader:
+        isbn = row[0]
+        title = row[1]
+        author = row[2]
+        year = row[3]
+
+        db.execute("INSERT INTO books (isbn, title, author, year) VALUES (:isbn, :title, :author, :year)", {
+            "isbn": isbn, "title": title, "author": author, "year": year})
+
+        print("Added book " + str(i))
+        i = i + 1
+
+db.commit()
+db.close()
+print("Success!")

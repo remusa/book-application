@@ -67,7 +67,14 @@ def logout():
     return redirect(url_for("index"))
 
 
+@app.route("/search")
+def search():
+    if username in session:
+        return render_template("search.html")
+    else:
+        return render_template("error.html", message="Sorry! You need to log in first to use that feature")
+
 # GoodReads API
 # res = requests.get("https://www.goodreads.com/book/review_counts.json",
-#                    params={"key": KEY, "isbns": isbn})
+#                    params={"key": KEY, "isbn": isbn})
 # print(res.json())
