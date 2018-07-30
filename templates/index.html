@@ -1,16 +1,22 @@
-{% extends "layout.html" %} {% block heading %} Login | Register {% endblock %} {% block body %}
+{% extends "layout.html" %}
+
+{% block heading %}
+    Login | Register
+{% endblock %}
+
+{% block body %}
 <main class="container-fluid">
 
     <form action="{{ url_for('index') }}" method="post">
         <div class="form-group">
             <label for="inputEmail">Email address</label>
-            <input type="email" class="form-control" id="inputEmail" name="inputEmail" aria-describedby="emailHelp" />
+            <input type="email" class="form-control" id="inputEmail" name="inputEmail" aria-describedby="emailHelp" required/>
             <small id="emailHelp" class="form-text text-muted">We'll never share your email!</small>
         </div>
 
         <div class="form-group">
             <label for="inputPassword">Password</label>
-            <input type="password" class="form-control" id="inputPassword" name="inputPassword" placeholder="*****" />
+            <input type="password" class="form-control" id="inputPassword" name="inputPassword" placeholder="*****" required/>
         </div>
 
         <button type="submit" name="" class="btn btn-primary">Submit</button>
