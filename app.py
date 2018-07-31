@@ -19,7 +19,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Set up database
-engine = create_engine(os.getenv("DATABASE_URL"))  # DATABASE_URL
+engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 KEY = "DNmoNwfQbaJFsYerLF4A"
@@ -28,6 +28,9 @@ isbn = "0765326353"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    session_user = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username \
+        if session.get("user_id") else None
+
     # Get form information
     if request.method == "POST":
         username = str(request.form.get("inputEmail"))
@@ -43,19 +46,20 @@ def index():
             db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {
                 "username": username, "password": password})
             db.commit()
-            return render_template("search.html", message="You were successfully registered")
-        # log in existing user
+            return render_template("index.html", message="You were successfully registered")
+
+        # log in user
         elif rowCount == 1:
-            checkPassword = db.execute("SELECT password FROM users WHERE username = :username", {
+            login = db.execute("SELECT username, password FROM users WHERE username = :username", {
                 "username": username}).fetchone()
-            # log in successful
-            if password == checkPassword.password:
+
+            # password matches
+            if password == login.password:
                 if username in session:
                     return redirect(url_for("search"))
-                    # return render_template("search.html")
                 else:
+                    session["user_id"] = login.username
                     return redirect(url_for("search"))
-                    # return render_template("search.html", message="Welcome back!")
             # wrong password
             else:
                 return render_template("error.html", message="Wrong email/password combination")
@@ -65,7 +69,7 @@ def index():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    session.pop("user_id", None)
     return redirect(url_for("index"))
 
 
@@ -93,47 +97,73 @@ def search():
 
     else:
         return render_template("search.html")
-    # return redirect(url_for("search"))
 
 
 @app.route("/book/<string:isbn>", methods=["GET", "POST"])
 def book(isbn):
+    user = session["user_id"]  # "test@test.com"
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn",
                       {"isbn": isbn}).first()
 
-    # When users click on a book from the results of the search page, they should be taken to a book page, with details about the book: its title, author, publication year, ISBN number, and any reviews that users have left for the book on your website.
+    if request.method == "POST":
+        rating = int(request.form.get("ratingSelect"))
+        comment = str(request.form.get("commentTextArea"))
 
-    return render_template("book.html", isbn=book[0], title=book[1], author=book[2], year=book[3], goodreadsdata=goodreads(isbn))
+        check_rating = db.execute("SELECT rating, comment FROM reviews WHERE isbn = :isbn AND username = :user", {
+            "isbn": isbn, "user": user}).first()
+
+        if check_rating == None:
+            print("INSERTING")
+            db.execute("INSERT INTO reviews VALUES (:user, :isbn, :rating, :comment)",
+                       {"user": user, "isbn": isbn,
+                        "rating": rating, "comment": comment})
+            db.commit()
+        else:
+            print("UPDATING")
+            db.execute("UPDATE reviews SET rating = :rating, comment = :comment WHERE isbn = :isbn AND username = :user",
+                       {"isbn": isbn, "user": user, "rating": rating, "comment": comment})
+            db.commit()
+
+    elif request.method == "GET":
+        review = db.execute("SELECT * FROM reviews WHERE isbn = :isbn AND username = :user",
+                            {"isbn": isbn, "user": user}).first()
+
+        if review != None:
+            print("review: " + str(review))
+            rating = review.rating
+            comment = review.comment
+        else:
+            rating = 1
+            comment = ""
+
+    return render_template("book.html", isbn=book[0], title=book[1], author=book[2], year=book[3],
+                           rating=rating, comment=comment)
 
 
-# @app.route("/api/<string:isbn>")
-# def api(isbn):
-#     return jsonify(book_data(isbn))
-
-
-@app.route("/api/<string:isbn>")
+@app.route("/api/<string:isbn>", methods=["GET"])
 def api(isbn):
-    rowCount = int(db.execute("SELECT * FROM books WHERE isbn = :isbn",
-                              {"isbn": isbn}).rowcount)
-    if rowCount > 0:
-        book = db.execute("SELECT * FROM books WHERE isbn = :isbn",
-                          {"isbn": isbn}).first()
+    if request.method == "GET":
+        rowCount = int(db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                                  {"isbn": isbn}).rowcount)
+        if rowCount > 0:
+            book = db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                              {"isbn": isbn}).first()
 
-        review_count = db.execute(
-            "SELECT COUNT(*) FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).first().count
-        average_score = db.execute(
-            "SELECT AVG(rating::DECIMAL) FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).first().avg
+            review_count = db.execute(
+                "SELECT COUNT(*) FROM reviews WHERE isbn = :isbn", {"isbn": isbn}).first().count
+            average_score = db.execute("SELECT AVG(rating::DECIMAL) FROM reviews WHERE isbn = :isbn",
+                                       {"isbn": isbn}).first().avg
 
-        response = {
-            "isbn": int(book.isbn),
-            "title": book.title,
-            "author": book.author,
-            "year": int(book.year),
-            "review_count": review_count,
-            "average_score": average_score
-        }
+            response = {
+                "isbn": int(book.isbn),
+                "title": book.title,
+                "author": book.author,
+                "year": int(book.year),
+                "review_count": review_count,
+                "average_score": float('{0:.2f}'.format(average_score))
+            }
 
-        return jsonify(response)
+            return jsonify(response)
 
     return render_template("404.html", message="The requested book doesn't exist in our database!")
 
