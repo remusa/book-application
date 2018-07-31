@@ -1,2 +1,5 @@
 
 setup.md
+__pycache__/
+flask_session/
+.vscode/
