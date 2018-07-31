@@ -5,22 +5,24 @@
 {% endblock %}
 
 {% block body %}
-<main class="container-fluid">
 
-    <form action="{{ url_for('index') }}" method="post">
-        <div class="form-group">
-            <label for="inputEmail">Email address</label>
-            <input type="email" class="form-control" id="inputEmail" name="inputEmail" aria-describedby="emailHelp" required/>
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email!</small>
-        </div>
+    <main class="container-fluid">
 
-        <div class="form-group">
-            <label for="inputPassword">Password</label>
-            <input type="password" class="form-control" id="inputPassword" name="inputPassword" placeholder="*****" required/>
-        </div>
+        <form action="{{ url_for('index') }}" method="post">
+            <div class="form-group">
+                <label for="inputEmail">Email address</label>
+                <input type="email" class="form-control" id="inputEmail" name="inputEmail" aria-describedby="emailHelp" required/>
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email!</small>
+            </div>
 
-        <button type="submit" name="" class="btn btn-primary">Submit</button>
-    </form>
+            <div class="form-group">
+                <label for="inputPassword">Password</label>
+                <input type="password" class="form-control" id="inputPassword" name="inputPassword" placeholder="*****" required/>
+            </div>
 
-</main>
+            <button type="submit" name="" class="btn btn-primary">Submit</button>
+        </form>
+
+    </main>
+
 {% endblock %}

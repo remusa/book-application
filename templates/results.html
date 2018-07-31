@@ -1,0 +1,37 @@
+{% extends "layout.html" %} {% block title %} Search {% endblock %} {% block heading %} Search books... {% endblock %} {%
+block body %}
+
+<main class="container-fluid">
+
+    {{ message }}
+
+    <table class="table" id="resultsTable">
+        <thead>
+            <th scope="col">ISBN</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Year</th>
+        </thead>
+
+        <tbody>
+            {% for b in books %}
+            <tr scope="row"></tr>
+            <td>
+                <a class="" href="{{ url_for('book', isbn = b[0]) }}">{{ b[0] }}</a>
+            </td>
+            <td>{{ b[1] }}</td>
+            <td>{{ b[2] }}</td>
+            <td>{{ b[3] }}</td>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</footer>
+
+{% endblock %}

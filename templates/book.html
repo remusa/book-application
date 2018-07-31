@@ -1,0 +1,23 @@
+{% extends "layout.html" %} {% block title %} Book Information {% endblock %} {% block heading %} Book Information {% endblock
+%} {% block body %}
+
+<main class="container-fluid">
+
+    <ul>
+        <li>isbn: {{ isbn }}</li>
+        <li>title: {{ title }}</li>
+        <li>author: {{ author }}</li>
+        <li>year: {{ year }}</li>
+        <li>work_ratings_count: {{ goodreadsdata['work_ratings_count'] }}</li>
+        <li>average_rating: {{ goodreadsdata['average_rating'] }}</li>
+    </ul>
+
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</footer>
+
+{% endblock %}
