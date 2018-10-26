@@ -1,4 +1,5 @@
 Flask
 Flask-Session
-psycopg2
+psycopg2-binary
 SQLAlchemy
+itsdangerous>=0.24,<1.0.0

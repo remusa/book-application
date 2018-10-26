@@ -29,7 +29,8 @@ isbn = "0765326353"
 @app.route("/", methods=["GET", "POST"])
 def index():
     session_user = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username \
-        if session.get("user_id") else None
+        if session.get("user_id") \
+        else None
 
     # Get form information
     if request.method == "POST":
@@ -171,9 +172,10 @@ def api(isbn):
 def goodreads(isbn):
     res = requests.get("https://www.goodreads.com/book/review_counts.json",
                        params={"key": KEY, "isbns": isbn})
-    print(res.json())
     return res.json()['books'][0]
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Bind to PORT if defined, otherwise default to 5000.
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)  # debug=True
