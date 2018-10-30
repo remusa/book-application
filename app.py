@@ -8,7 +8,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
 
-
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
@@ -22,9 +21,6 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-KEY = "DNmoNwfQbaJFsYerLF4A"
-isbn = "0765326353"
-
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -37,20 +33,20 @@ def index():
         username = str(request.form.get("inputEmail"))
         password = str(request.form.get("inputPassword"))
 
-        rowCount = int(db.execute(
+        row_count = int(db.execute(
             "SELECT * FROM users WHERE username = :username", {"username": username}).rowcount)
 
-        print(rowCount)
+        print(row_count)
 
         # register new user
-        if rowCount == 0:
+        if row_count == 0:
             db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {
                 "username": username, "password": password})
             db.commit()
             return render_template("index.html", message="You were successfully registered")
 
         # log in user
-        elif rowCount == 1:
+        elif row_count == 1:
             login = db.execute("SELECT username, password FROM users WHERE username = :username", {
                 "username": username}).fetchone()
 
@@ -81,7 +77,8 @@ def search():
         print("book: " + book)
 
         rowCount = int(db.execute(
-            "SELECT * FROM books WHERE isbn LIKE :book OR lower(title) LIKE :book OR lower(author) LIKE :book", {"book": "%" + book + "%"}).rowcount)
+            "SELECT * FROM books WHERE isbn LIKE :book OR lower(title) LIKE :book OR lower(author) LIKE :book",
+            {"book": "%" + book + "%"}).rowcount)
 
         print("rowCount: " + str(rowCount))
 
@@ -89,7 +86,8 @@ def search():
             return render_template("error.html", message="No matches found")
         else:
             books = db.execute(
-                "SELECT * FROM books WHERE isbn LIKE :book OR lower(title) LIKE :book OR lower(author) LIKE :book", {"book": "%" + book + "%"}).fetchall()
+                "SELECT * FROM books WHERE isbn LIKE :book OR lower(title) LIKE :book OR lower(author) LIKE :book",
+                {"book": "%" + book + "%"}).fetchall()
 
             number_results = "Found %d results" % rowCount
             return render_template("results.html", message=number_results, books=books)
@@ -121,8 +119,9 @@ def book(isbn):
             db.commit()
         else:
             print("UPDATING")
-            db.execute("UPDATE reviews SET rating = :rating, comment = :comment WHERE isbn = :isbn AND username = :user",
-                       {"isbn": isbn, "user": user, "rating": rating, "comment": comment})
+            db.execute(
+                "UPDATE reviews SET rating = :rating, comment = :comment WHERE isbn = :isbn AND username = :user",
+                {"isbn": isbn, "user": user, "rating": rating, "comment": comment})
             db.commit()
 
     elif request.method == "GET":
@@ -146,6 +145,7 @@ def api(isbn):
     if request.method == "GET":
         rowCount = int(db.execute("SELECT * FROM books WHERE isbn = :isbn",
                                   {"isbn": isbn}).rowcount)
+
         if rowCount > 0:
             book = db.execute("SELECT * FROM books WHERE isbn = :isbn",
                               {"isbn": isbn}).first()
@@ -171,11 +171,12 @@ def api(isbn):
 
 def goodreads(isbn):
     res = requests.get("https://www.goodreads.com/book/review_counts.json",
-                       params={"key": KEY, "isbns": isbn})
+                       params={"key": "DNmoNwfQbaJFsYerLF4A", "isbns": isbn})
     return res.json()['books'][0]
 
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)  # debug=True
+    app.run(host='0.0.0.0', port=port)
+    # app.run(debug=True)

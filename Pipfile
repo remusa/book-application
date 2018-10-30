@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"psycopg2-binary" = "*"
+itsdangerous = ">=0.24,<1.0.0"
+Flask = "*"
+Flask-Session = "*"
+SQLAlchemy = "*"
+requests = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
