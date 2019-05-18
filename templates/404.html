@@ -1,18 +1,19 @@
-{% extends "layout.html" %} {% block title %} Error 404 {% endblock %} {% block heading %} The selected book doesn't exist
-in the database {% endblock %} {% block body %}
+{% extends "layout.html" %} {% block title %} Error 404 {% endblock %} {% block heading %} The selected book doesn't
+    exist
+    in the database {% endblock %} {% block body %}
 
-<main class="container-fluid">
+    <main class="container-fluid">
 
-    <h1>404 error, oops!</h1>
+        <h1>404 error, oops!</h1>
 
-    {{ api_error }}
+        {{ api_error }}
 
-</main>
+    </main>
 
-<footer class="footer">
-    <div class="container">
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </div>
-</footer>
+    <footer class="footer">
+        <div class="container">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </footer>
 
 {% endblock %}
